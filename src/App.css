@@ -1,0 +1,465 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #111;
+  font-family: Arial, sans-serif;
+  overscroll-behavior: none;
+}
+
+.game-container {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+.game-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+
+/* FPS Crosshair */
+.crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.crosshair span {
+  position: absolute;
+  display: block;
+  background: #ffffff;
+  box-shadow: 0 0 2px #000000;
+}
+
+.crosshair-top {
+  width: 2px;
+  height: 7px;
+  top: 0;
+  left: 11px;
+}
+
+.crosshair-bottom {
+  width: 2px;
+  height: 7px;
+  bottom: 0;
+  left: 11px;
+}
+
+.crosshair-left {
+  width: 7px;
+  height: 2px;
+  top: 11px;
+  left: 0;
+}
+
+.crosshair-right {
+  width: 7px;
+  height: 2px;
+  top: 11px;
+  right: 0;
+}
+
+.crosshair-dot {
+  width: 3px;
+  height: 3px;
+  top: 10px;
+  left: 10px;
+  border-radius: 50%;
+}
+
+
+/* Hit marker effect */
+.crosshair {
+  transition: opacity 0.1s ease;
+}
+
+.crosshair.hit span {
+  background: #ff2525;
+}
+
+.hit-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ff2525;
+  font-size: 38px;
+  font-weight: bold;
+  text-shadow: 0 0 5px #000;
+  line-height: 1;
+}
+
+/* Game HUD */
+
+.game-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+/* Top section */
+
+.hud-top {
+  position: absolute;
+  top: 22px;
+  left: 25px;
+  right: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Health panel */
+
+.health-panel {
+  width: 190px;
+  padding: 12px;
+  background: rgba(10, 15, 18, 0.72);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+}
+
+.hud-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 9px;
+}
+
+.hud-label span,
+.score-panel span {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: #c4cbd0;
+}
+
+.hud-label strong {
+  font-size: 17px;
+}
+
+.health-bar {
+  height: 8px;
+  width: 100%;
+  background: #30383d;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.25s ease;
+}
+
+/* Score panel */
+
+.score-panel {
+  min-width: 110px;
+  padding: 12px 18px;
+  text-align: center;
+  background: rgba(10, 15, 18, 0.72);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+}
+
+.score-panel span {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.score-panel strong {
+  font-size: 23px;
+  color: #ffd34e;
+}
+
+/* Ammo panel */
+
+.ammo-panel {
+  position: absolute;
+  right: 25px;
+  bottom: 145px;
+  min-width: 135px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(10, 15, 18, 0.8);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+}
+
+.ammo-number {
+  font-size: 30px;
+  color: #ffffff;
+}
+
+.ammo-total {
+  font-size: 11px;
+  color: #c4cbd0;
+}
+
+.reload-text {
+  font-size: 13px;
+  color: #ffd34e;
+  letter-spacing: 1px;
+}
+
+/* =========================
+   MOBILE HUD
+========================= */
+
+@media (max-width: 600px) {
+
+  .hud-top {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .health-panel {
+    width: 145px;
+    padding: 9px;
+  }
+
+  .hud-label span,
+  .score-panel span {
+    font-size: 9px;
+  }
+
+  .hud-label strong {
+    font-size: 14px;
+  }
+
+  .score-panel {
+    min-width: 85px;
+    padding: 9px 12px;
+  }
+
+  .score-panel strong {
+    font-size: 19px;
+  }
+
+  .ammo-panel {
+    right: 15px;
+    bottom: 145px;
+    min-width: 105px;
+    padding: 9px 12px;
+  }
+
+  .ammo-number {
+    font-size: 24px;
+  }
+
+  .ammo-total {
+    font-size: 9px;
+  }
+}
+
+
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  padding: 25px;
+}
+
+.health-panel,
+.score-panel {
+  background: rgba(0, 0, 0, 0.55);
+  padding: 12px 16px;
+  border-radius: 6px;
+  min-width: 130px;
+}
+
+.health-panel span,
+.score-panel span {
+  display: block;
+  font-size: 12px;
+  color: #ddd;
+  margin-bottom: 5px;
+}
+
+.health-panel strong,
+.score-panel strong {
+  font-size: 20px;
+}
+
+.health-bar {
+  width: 150px;
+  height: 8px;
+  background: #555;
+  margin-top: 8px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  background: #22cc66;
+  transition: width 0.2s;
+}
+
+.ammo-panel {
+  position: absolute;
+  right: 25px;
+  bottom: 25px;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 14px 20px;
+  border-radius: 6px;
+  font-size: 17px;
+}
+
+.ammo-panel strong {
+  font-size: 30px;
+}
+
+@media (max-width: 600px) {
+  .hud-top {
+    padding: 12px;
+  }
+
+  .health-bar {
+    width: 100px;
+  }
+
+  .ammo-panel {
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+
+/* Mobile joystick */
+
+.mobile-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  display: none;
+}
+
+.joystick-base {
+  position: absolute;
+  left: 35px;
+  bottom: 45px;
+  width: 125px;
+  height: 125px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.joystick-knob {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.65);
+  border: 2px solid white;
+  pointer-events: none;
+}
+
+@media (pointer: coarse) {
+  .mobile-controls {
+    display: block;
+  }
+}
+
+
+/* Mobile camera aiming area */
+
+.mobile-look-area {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 55%;
+  height: 100%;
+  pointer-events: auto;
+  touch-action: none;
+  z-index: 1;
+}
+
+/* Keep joystick above the aiming area */
+
+.joystick-base {
+  z-index: 2;
+}
+
+/* Mobile action buttons */
+
+.mobile-action-buttons {
+  position: absolute;
+  right: 25px;
+  bottom: 35px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+.mobile-button {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  background: rgba(30, 30, 30, 0.75);
+  touch-action: none;
+  user-select: none;
+}
+
+.fire-button {
+  width: 78px;
+  height: 78px;
+  background: rgba(190, 35, 25, 0.85);
+}
+
+.jump-button {
+  background: rgba(35, 100, 190, 0.85);
+}
+
+.reload-button {
+  background: rgba(50, 120, 65, 0.85);
+}
+
+.mobile-button:active {
+  transform: scale(0.92);
+}
+
