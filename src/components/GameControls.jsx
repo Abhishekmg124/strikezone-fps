@@ -9,6 +9,7 @@ export default function GameControls() {
   const ammo = useRef(30);
   const reloading = useRef(false);
   const reloadTimer = useRef(null);
+  const paused = useRef(false);
 
   useEffect(() => {
     console.log("GameControls activated!");
@@ -25,10 +26,15 @@ export default function GameControls() {
       );
     };
 
+    const handlePause = (event) => {
+      paused.current = event.detail.paused;
+    };
+
     updateHUD();
 
     // Shared shooting function
     const fireWeapon = () => {
+      if (paused.current) return;
       if (reloading.current) return;
 
       if (ammo.current <= 0) {
@@ -46,19 +52,21 @@ export default function GameControls() {
       window.dispatchEvent(new Event("weapon-fire"));
     };
 
-    // Desktop shooting
     const handleMouseShoot = (event) => {
-      if (event.button !== 0) return;
-      fireWeapon();
-    };
+    if (event.button !== 0) return;
 
-    // Mobile shooting
+     // Ignore clicks on menu buttons and other UI elements
+     if (event.target.closest("button")) return;
+
+      fireWeapon();
+      };
+
     const handleMobileShoot = () => {
       fireWeapon();
     };
 
-    // Shared reload function
     const reloadWeapon = () => {
+      if (paused.current) return;
       if (reloading.current) return;
       if (ammo.current === 30) return;
 
@@ -78,16 +86,16 @@ export default function GameControls() {
       }, 1500);
     };
 
-    // Desktop reload
     const handleKeyboardReload = (event) => {
       if (event.code !== "KeyR") return;
       reloadWeapon();
     };
 
-    // Mobile reload
     const handleMobileReload = () => {
       reloadWeapon();
     };
+
+    window.addEventListener("game-pause-state", handlePause);
 
     document.addEventListener("mousedown", handleMouseShoot);
     window.addEventListener("mobile-fire", handleMobileShoot);
@@ -96,6 +104,8 @@ export default function GameControls() {
     window.addEventListener("mobile-reload", handleMobileReload);
 
     return () => {
+      window.removeEventListener("game-pause-state", handlePause);
+
       document.removeEventListener("mousedown", handleMouseShoot);
       window.removeEventListener("mobile-fire", handleMobileShoot);
 

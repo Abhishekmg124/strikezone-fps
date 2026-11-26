@@ -18,10 +18,7 @@ function Ground() {
       position={[0, -0.1, 0]}
     >
       <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial
-        color="#c5a36b"
-        roughness={1}
-      />
+      <meshStandardMaterial color="#c5a36b" roughness={1} />
     </mesh>
   );
 }
@@ -30,13 +27,11 @@ function Ground() {
 function Tree({ position, scale = 1 }) {
   return (
     <group position={position} scale={scale}>
-      {/* Trunk */}
       <mesh position={[0, 1.5, 0]}>
         <cylinderGeometry args={[0.18, 0.28, 3, 6]} />
         <meshStandardMaterial color="#65452c" />
       </mesh>
 
-      {/* Leaves */}
       <mesh position={[0, 3.5, 0]}>
         <coneGeometry args={[1.5, 3, 7]} />
         <meshStandardMaterial color="#315b32" flatShading />
@@ -73,8 +68,29 @@ function Rock({ position, scale = 1 }) {
   );
 }
 
-// Environment decoration
+// Low-poly bushes
+function Bush({ position, scale = 1 }) {
+  return (
+    <group position={position} scale={scale}>
+      <mesh position={[0, 0.45, 0]}>
+        <dodecahedronGeometry args={[0.65, 0]} />
+        <meshStandardMaterial color="#315d32" flatShading />
+      </mesh>
 
+      <mesh position={[-0.4, 0.3, 0.1]}>
+        <dodecahedronGeometry args={[0.45, 0]} />
+        <meshStandardMaterial color="#426f36" flatShading />
+      </mesh>
+
+      <mesh position={[0.4, 0.3, -0.1]}>
+        <dodecahedronGeometry args={[0.5, 0]} />
+        <meshStandardMaterial color="#527d3d" flatShading />
+      </mesh>
+    </group>
+  );
+}
+
+// Environment decoration
 function Environment() {
   const trees = [
     [-17, 0, -3],
@@ -129,7 +145,6 @@ function Environment() {
 
   return (
     <group>
-      {/* Trees */}
       {trees.map((position, index) => (
         <Tree
           key={`tree-${index}`}
@@ -138,7 +153,6 @@ function Environment() {
         />
       ))}
 
-      {/* Bushes */}
       {bushes.map((position, index) => (
         <Bush
           key={`bush-${index}`}
@@ -147,7 +161,6 @@ function Environment() {
         />
       ))}
 
-      {/* Rocks */}
       {rocks.map((position, index) => (
         <Rock
           key={`rock-${index}`}
@@ -158,31 +171,6 @@ function Environment() {
     </group>
   );
 }
-
-
-
-// Low-poly bushes
-function Bush({ position, scale = 1 }) {
-  return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 0.45, 0]}>
-        <dodecahedronGeometry args={[0.65, 0]} />
-        <meshStandardMaterial color="#315d32" flatShading />
-      </mesh>
-
-      <mesh position={[-0.4, 0.3, 0.1]}>
-        <dodecahedronGeometry args={[0.45, 0]} />
-        <meshStandardMaterial color="#426f36" flatShading />
-      </mesh>
-
-      <mesh position={[0.4, 0.3, -0.1]}>
-        <dodecahedronGeometry args={[0.5, 0]} />
-        <meshStandardMaterial color="#527d3d" flatShading />
-      </mesh>
-    </group>
-  );
-}
-
 
 // Arena walls
 function Walls() {
@@ -228,54 +216,7 @@ function Obstacles() {
   );
 }
 
-
-// Sky gradient shaders
-const skyVertexShader = `
-  varying vec3 vSkyDirection;
-
-  void main() {
-    vSkyDirection = position;
-
-    gl_Position = projectionMatrix *
-      modelViewMatrix *
-      vec4(position, 1.0);
-  }
-`;
-
-const skyFragmentShader = `
-  varying vec3 vSkyDirection;
-
-  uniform vec3 uTopColor;
-  uniform vec3 uHorizonColor;
-  uniform vec3 uHazeColor;
-
-
-varying vec3 vSkyDirection;
-
-varying vec3 vSkyDirection;
-
-void main() {
-  vSkyDirection = position;
-
-  gl_Position = projectionMatrix *
-    modelViewMatrix *
-    vec4(position, 1.0);
-}
-
-    float haze = 1.0 - smoothstep(-0.05, 0.35, height);
-
-    skyColor = mix(
-      skyColor,
-      uHazeColor,
-      haze * 0.3
-    );
-
-    gl_FragColor = vec4(skyColor, 1.0);
-  }
-`;
-
 // Main sky dome
-
 function SkyDome() {
   return (
     <mesh renderOrder={-1}>
@@ -290,12 +231,9 @@ function SkyDome() {
   );
 }
 
-
 function Sun() {
   return (
     <group position={[30, 35, -65]}>
-
-      {/* Sun body */}
       <mesh>
         <sphereGeometry args={[4, 24, 24]} />
         <meshBasicMaterial
@@ -304,7 +242,6 @@ function Sun() {
         />
       </mesh>
 
-      {/* Outer glow */}
       <mesh>
         <sphereGeometry args={[5.5, 20, 20]} />
         <meshBasicMaterial
@@ -315,7 +252,6 @@ function Sun() {
           toneMapped={false}
         />
       </mesh>
-
     </group>
   );
 }
@@ -323,7 +259,6 @@ function Sun() {
 function Cloud({ position, scale = 1 }) {
   return (
     <group position={position} scale={scale}>
-
       <mesh position={[-2, 0, 0]}>
         <sphereGeometry args={[2, 8, 6]} />
         <meshBasicMaterial color="#ffffff" />
@@ -343,7 +278,6 @@ function Cloud({ position, scale = 1 }) {
         <sphereGeometry args={[2, 8, 6]} />
         <meshBasicMaterial color="#e7edf2" />
       </mesh>
-
     </group>
   );
 }
@@ -361,23 +295,19 @@ function Clouds() {
   );
 }
 
-
 function WoodenDivider() {
   return (
     <group position={[0, 0, -4]}>
-      {/* Short wooden barrier */}
       <mesh position={[0, 0.65, 0]}>
         <boxGeometry args={[22, 1.1, 0.35]} />
         <meshStandardMaterial color="#79502f" roughness={1} />
       </mesh>
 
-      {/* Top wooden beam */}
       <mesh position={[0, 1.25, 0]}>
         <boxGeometry args={[22.3, 0.12, 0.45]} />
         <meshStandardMaterial color="#4f321f" />
       </mesh>
 
-      {/* Support posts */}
       {[-10, -5, 0, 5, 10].map((x) => (
         <mesh key={x} position={[x, 0.65, 0]}>
           <boxGeometry args={[0.2, 1.5, 0.5]} />
@@ -388,18 +318,17 @@ function WoodenDivider() {
   );
 }
 
-
-
 function TargetRope() {
   return (
     <group>
-      {/* Horizontal rope */}
-      <mesh position={[0, 4.5, -13]} rotation={[0, 0, Math.PI / 2]}>
+      <mesh
+        position={[0, 4.5, -13]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
         <cylinderGeometry args={[0.045, 0.045, 20, 8]} />
         <meshStandardMaterial color="#403326" />
       </mesh>
 
-      {/* Support poles */}
       {[-10, 10].map((x) => (
         <group key={x} position={[x, 0, -13]}>
           <mesh position={[0, 2.3, 0]}>
@@ -412,21 +341,16 @@ function TargetRope() {
   );
 }
 
-
-
 function Mountains() {
   const mountainPositions = [
-    // Left boundary
     [-24, 0, -5, 10, 13, 9],
     [-27, 0, -16, 13, 17, 10],
     [-23, 0, -29, 11, 15, 9],
 
-    // Right boundary
     [24, 0, -5, 11, 14, 9],
     [28, 0, -17, 14, 18, 11],
     [23, 0, -30, 12, 16, 10],
 
-    // Back boundary
     [-12, 0, -34, 13, 17, 10],
     [4, 0, -38, 15, 20, 12],
     [20, 0, -36, 13, 16, 10],
@@ -436,7 +360,6 @@ function Mountains() {
     <group>
       {mountainPositions.map((m, index) => (
         <group key={index} position={[m[0], m[1], m[2]]}>
-          {/* Main mountain */}
           <mesh position={[0, m[4] / 2, 0]}>
             <coneGeometry args={[m[3], m[4], 7]} />
             <meshStandardMaterial
@@ -445,7 +368,6 @@ function Mountains() {
             />
           </mesh>
 
-          {/* Rocky mountain base */}
           <mesh position={[0, 1.2, 0]}>
             <cylinderGeometry args={[m[3] * 0.9, m[3] * 1.15, 2.4, 7]} />
             <meshStandardMaterial
@@ -459,10 +381,12 @@ function Mountains() {
   );
 }
 
-
 export default function GameScene() {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [graphics, setGraphics] = useState("Low");
+  const [sensitivity, setSensitivity] = useState(0.5);
 
+  // Detect touch devices
   useEffect(() => {
     const mediaQuery = window.matchMedia("(pointer: coarse)");
 
@@ -479,6 +403,33 @@ export default function GameScene() {
     };
   }, []);
 
+  // Receive settings from the pause menu
+  useEffect(() => {
+    const handleSettings = (event) => {
+      setGraphics(event.detail.graphics ?? "Low");
+      setSensitivity(event.detail.sensitivity ?? 0.5);
+    };
+
+    window.addEventListener("game-settings-update", handleSettings);
+
+    return () => {
+      window.removeEventListener("game-settings-update", handleSettings);
+    };
+  }, []);
+
+  // Keep rendering resolution conservative
+  const getDpr = () => {
+    if (graphics === "High") {
+      return isTouchDevice ? 1.15 : 1.3;
+    }
+
+    if (graphics === "Medium") {
+      return isTouchDevice ? 1.05 : 1.15;
+    }
+
+    return 1;
+  };
+
   return (
     <Canvas
       camera={{
@@ -487,7 +438,7 @@ export default function GameScene() {
         near: 0.1,
         far: 100,
       }}
-      dpr={1}
+      dpr={getDpr()}
       frameloop="always"
       shadows={false}
       gl={{
@@ -497,9 +448,9 @@ export default function GameScene() {
       }}
     >
       {/* Sky */}
-       <SkyDome />
-       <Sun />
-       <Clouds />
+      <SkyDome />
+      <Sun />
+      <Clouds />
 
       {/* Lighting */}
       <ambientLight intensity={1.3} />
@@ -513,35 +464,37 @@ export default function GameScene() {
       <Ground />
       <Environment />
       {/* <Walls /> */}
-       <Mountains/>
+      <Mountains />
 
       {/* Player and weapon */}
       <Player />
       <Weapon />
 
-      {/* Targets */}
+      {/* Wooden shooting divider */}
+      <WoodenDivider />
 
-       {/* Wooden shooting divider */}
-       <WoodenDivider />
+      {/* Target rope */}
+      <TargetRope />
 
-        {/* Target rope */}
-       <TargetRope />
+      {/* Existing three targets */}
+      <MovingTarget position={[-6, 3.2, -13]} movementRange={2.5} />
+      <MovingTarget position={[0, 3.2, -13]} movementRange={2.5} />
+      <MovingTarget position={[6, 3.2, -13]} movementRange={1} />
 
-       {/* Existing three targets - preserved */}
-       <Target position={[-12, 1.5, -8]} />
-       <Target position={[0, 1.5, -17]} />
-       <Target position={[13, 1.5, -7]} />
-
-       {/* Three new moving circular targets */}
-       <MovingTarget position={[-6, 3.2, -13]} />
-       <MovingTarget position={[0, 3.2, -13]} />
-       <MovingTarget position={[6, 3.2, -13]} />
+      {/* Three additional targets */}
+      <MovingTarget position={[-6, 3.2, -13]} />
+      <MovingTarget position={[0, 3.2, -13]} />
+      <MovingTarget position={[6, 3.2, -13]} />
 
       {/* Shooting */}
       <GameControls />
 
       {/* Desktop mouse controls */}
-      {!isTouchDevice && <PointerLockControls />}
+      {!isTouchDevice && (
+        <PointerLockControls
+          pointerSpeed={sensitivity / 0.5}
+        />
+      )}
     </Canvas>
   );
 }

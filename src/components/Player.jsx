@@ -8,7 +8,6 @@ const obstacles = [
   { x: -5, z: -10, width: 4, depth: 2 },
   { x: 8, z: -12, width: 3, depth: 3 },
 ];
-
 const PLAYER_RADIUS = 0.4;
 
 function checkCollision(x, z) {
@@ -46,9 +45,11 @@ export default function Player() {
 
   const keys = useRef({});
   const mobileMove = useRef({ x: 0, y: 0 });
+  const sensitivity = useRef(0.5);
 
   const velocityY = useRef(0);
   const canJump = useRef(true);
+  const paused = useRef(false);
 
   const speed = 5;
   const gravity = 18;
@@ -58,7 +59,19 @@ export default function Player() {
     camera.position.set(0, 1.7, 5);
     camera.rotation.order = "YXZ";
 
+    const handlePause = (event) => {
+      paused.current = event.detail.paused;
+
+      // Clear movement inputs when pausing
+      if (paused.current) {
+        keys.current = {};
+        mobileMove.current = { x: 0, y: 0 };
+      }
+    };
+
     const handleKeyDown = (e) => {
+      if (paused.current) return;
+
       keys.current[e.code] = true;
 
       if (e.code === "Space" && canJump.current) {
@@ -72,6 +85,8 @@ export default function Player() {
     };
 
     const handleMobileMove = (e) => {
+      if (paused.current) return;
+
       mobileMove.current = {
         x: THREE.MathUtils.clamp(e.detail.x, -1, 1),
         y: THREE.MathUtils.clamp(e.detail.y, -1, 1),
@@ -79,10 +94,12 @@ export default function Player() {
     };
 
     const handleMobileLook = (e) => {
-      const sensitivity = 0.003;
+      if (paused.current) return;
 
-      camera.rotation.y -= e.detail.deltaX * sensitivity;
-      camera.rotation.x -= e.detail.deltaY * sensitivity;
+      const mobileSensitivity = 0.003 * (sensitivity.current / 0.5);
+
+      camera.rotation.y -= e.detail.deltaX * mobileSensitivity;
+      camera.rotation.x -= e.detail.deltaY * mobileSensitivity;
 
       camera.rotation.x = THREE.MathUtils.clamp(
         camera.rotation.x,
@@ -92,28 +109,41 @@ export default function Player() {
     };
 
     const handleMobileJump = () => {
+      if (paused.current) return;
+
       if (canJump.current) {
         velocityY.current = jumpForce;
         canJump.current = false;
       }
     };
 
+    const handleSettings = (event) => {
+      sensitivity.current = event.detail.sensitivity ?? 0.5;
+    };
+
+    window.addEventListener("game-pause-state", handlePause);
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("mobile-move", handleMobileMove);
     window.addEventListener("mobile-look", handleMobileLook);
     window.addEventListener("mobile-jump", handleMobileJump);
+    window.addEventListener("game-settings-update", handleSettings);
 
     return () => {
+      window.removeEventListener("game-pause-state", handlePause);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("mobile-move", handleMobileMove);
       window.removeEventListener("mobile-look", handleMobileLook);
       window.removeEventListener("mobile-jump", handleMobileJump);
+      window.removeEventListener("game-settings-update", handleSettings);
     };
   }, [camera]);
 
   useFrame((state, delta) => {
+    // Freeze player completely while paused
+    if (paused.current) return;
+
     const dt = Math.min(delta, 0.05);
 
     const forward = new THREE.Vector3();

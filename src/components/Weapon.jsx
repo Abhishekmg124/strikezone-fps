@@ -4,9 +4,16 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 // Gunshot sound effect
-function playGunSound() {
+function playGunSound(volume = 0.7) {
   const audioContext = new AudioContext();
   const now = audioContext.currentTime;
+
+  const masterGain = audioContext.createGain();
+  masterGain.gain.setValueAtTime(
+    THREE.MathUtils.clamp(volume / 0.7, 0, 1),
+    now
+  );
+  masterGain.connect(audioContext.destination);
 
   // Deep gunshot body
   const bass = audioContext.createOscillator();
@@ -20,7 +27,7 @@ function playGunSound() {
   bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
 
   bass.connect(bassGain);
-  bassGain.connect(audioContext.destination);
+  bassGain.connect(masterGain);
 
   // Sharp firing crack
   const bufferSize = Math.floor(audioContext.sampleRate * 0.12);
@@ -51,7 +58,7 @@ function playGunSound() {
 
   noise.connect(filter);
   filter.connect(crackGain);
-  crackGain.connect(audioContext.destination);
+  crackGain.connect(masterGain);
 
   bass.start(now);
   bass.stop(now + 0.2);
@@ -65,6 +72,8 @@ function playGunSound() {
 export default function Weapon() {
   const { camera, scene } = useThree();
 
+  const volumeRef = useRef(0.7);
+
   const gunRef = useRef(null);
   const flashRef = useRef(null);
   const lightRef = useRef(null);
@@ -73,6 +82,15 @@ export default function Weapon() {
   const flashTimerRef = useRef(0);
 
   useEffect(() => {
+    // Receive settings updates
+    const handleSettings = (event) => {
+      volumeRef.current = THREE.MathUtils.clamp(
+        event.detail.volume ?? 0.7,
+        0,
+        1
+      );
+    };
+
     const gun = new THREE.Group();
 
     function createBox(w, h, d, color, position) {
@@ -186,7 +204,7 @@ export default function Weapon() {
 
     // Shooting event
     const handleFire = () => {
-      playGunSound();
+      playGunSound(volumeRef.current);
 
       console.log("WEAPON FIRE EVENT RECEIVED!");
 
@@ -199,10 +217,12 @@ export default function Weapon() {
       light.intensity = 3;
     };
 
+    window.addEventListener("game-settings-update", handleSettings);
     window.addEventListener("weapon-fire", handleFire);
 
     return () => {
       window.removeEventListener("weapon-fire", handleFire);
+      window.removeEventListener("game-settings-update", handleSettings);
 
       camera.remove(gun);
 

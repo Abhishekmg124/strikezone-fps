@@ -1,9 +1,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
 
-export default function MovingTarget({ position = [0, 3, -16] }) {
+export default function MovingTarget({
+  position = [0, 3, -16],
+  movementRange = 2.5,
+}) {
   const [health, setHealth] = useState(100);
   const [active, setActive] = useState(true);
 
@@ -13,7 +15,6 @@ export default function MovingTarget({ position = [0, 3, -16] }) {
 
   const hitTimer = useRef(0);
   const respawnTimer = useRef(null);
-  const hideTimer = useRef(null);
 
   const movement = useRef({
     offset: 0,
@@ -38,13 +39,13 @@ export default function MovingTarget({ position = [0, 3, -16] }) {
 
     motion.offset += motion.direction * motion.speed * delta;
 
-    if (motion.offset > 2.5) {
-      motion.offset = 2.5;
+    if (motion.offset >= movementRange) {
+      motion.offset = movementRange;
       motion.direction = -1;
     }
 
-    if (motion.offset < -2.5) {
-      motion.offset = -2.5;
+    if (motion.offset <= -movementRange) {
+      motion.offset = -movementRange;
       motion.direction = 1;
     }
 
@@ -79,10 +80,6 @@ export default function MovingTarget({ position = [0, 3, -16] }) {
       if (nextHealth === 0) {
         setActive(false);
 
-        hideTimer.current = setTimeout(() => {
-          // Wait for the respawn timer
-        }, 450);
-
         respawnTimer.current = setTimeout(() => {
           healthRef.current = 100;
           setHealth(100);
@@ -116,7 +113,6 @@ export default function MovingTarget({ position = [0, 3, -16] }) {
   useEffect(() => {
     return () => {
       if (respawnTimer.current) clearTimeout(respawnTimer.current);
-      if (hideTimer.current) clearTimeout(hideTimer.current);
     };
   }, []);
 
